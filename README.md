@@ -2,9 +2,9 @@
 A shazam like app, that tries to recognise a music by recording it. And search for the equivalent match in a database of musics.
 
 
- <h2 style="text-align: center;"> collaborators </h2> 
+ <h2 align="center"> collaborators </h2> 
 
-- ***[Hamza](),*** ***[Elham](),***  ***[Yahya](),*** ***[Lydia]()***
+***[Hamza](),*** ***[Elham](),***  ***[Yahya](),*** ***[Lydia]()***
 
 
 <br>  
