@@ -1,8 +1,8 @@
-# Shazam meow
+<center> <h1> Shazam Meow </h1></center>
 A shazam like app, that tries to recognise a music by recording it. And search for the equivalent match in a database of musics.
 
 
-### Collaborators   
+<center> <h2> collaborators </h2></center>
 - ***[Hamza](),*** ***[Elham](),***  ***[Yahya](),*** ***[Lydia]()***
 
 
