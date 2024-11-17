@@ -1,8 +1,8 @@
-<center> <h1> Shazam Meow </h1></center>
+<h1 style="text-align: center;">Shazam Meow</h1>
 A shazam like app, that tries to recognise a music by recording it. And search for the equivalent match in a database of musics.
 
 
-<center> <h2> collaborators </h2></center>  
+ <h2 style="text-align: center;"> collaborators </h2> 
 
 - ***[Hamza](),*** ***[Elham](),***  ***[Yahya](),*** ***[Lydia]()***
 
