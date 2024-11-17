@@ -1,4 +1,4 @@
-<h1 style="text-align: center;">Shazam Meow</h1>
+<h1 align="center">Shazam Meow</h1>
 A shazam like app, that tries to recognise a music by recording it. And search for the equivalent match in a database of musics.
 
 
