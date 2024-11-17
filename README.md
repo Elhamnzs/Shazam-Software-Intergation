@@ -4,6 +4,8 @@ A shazam like app, that tries to recognise a music by recording it. And search f
 
  <h2 align="center"> collaborators </h2> 
 
+<center>
+
 ***[Hamza](),*** ***[Elham](),***  ***[Yahya](),*** ***[Lydia]()***
 
 
@@ -12,3 +14,5 @@ A shazam like app, that tries to recognise a music by recording it. And search f
 --- 
 > :memo: Made as a part of a university project at UPEC for the Software inegration 1 course.   
 > :copyright: under the MIT licence
+
+</center>
