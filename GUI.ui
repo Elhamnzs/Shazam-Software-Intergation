@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>546</width>
-    <height>610</height>
+    <width>815</width>
+    <height>800</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -69,6 +69,13 @@
          <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
            <widget class="PlotWidget" name="graphicsView"/>
+          </item>
+          <item>
+           <widget class="QProgressBar" name="progressBar">
+            <property name="value">
+             <number>24</number>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -145,7 +152,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>546</width>
+     <width>815</width>
      <height>26</height>
     </rect>
    </property>
