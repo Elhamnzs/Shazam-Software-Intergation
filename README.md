@@ -2,7 +2,7 @@
 A shazam like app, that tries to recognise a music by recording it. And search for the equivalent match in a database of musics.
 
 
- <h2 align="center"> collaborators </h2> 
+<h2 align="center"> collaborators </h2> 
 
 <center>
 
