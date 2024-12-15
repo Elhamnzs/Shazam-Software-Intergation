@@ -3,8 +3,11 @@ A shazam like app, that tries to recognise a music by recording it. And search f
 
 
 <h2 align="center"> Usage ℹ️</h2>
-- Before starting the app, you need to generate the database of hases using this command 
-```cmd python algorithms.py```
+- Before starting the app, you need to generate the database of hases using this command  
+
+``` cmd
+ python algorithms.py
+```
 
 
 - Once it is done, launc the app from `main.py`
