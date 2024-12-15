@@ -168,6 +168,50 @@ def find_best_match(hashes):
 
 
 
+def find_best_match_progressbar(hashes, update_func):
+    "update func : is the method responsible for updating the progress bar "
+
+    with open('song_hashes.json', 'r') as f:
+        song_hashes = json.load(f)
+
+
+    
+    # Extract the hash values from the full song hashes 
+    hash_values_full = set(h[2] for h in hashes)
+
+    # Find the song with the most matches
+    best_match_song = None
+    max_matches = 0
+
+    total_songs = len(song_hashes)
+    song_counter = 0
+
+    for song, hashes in song_hashes.items():
+
+        song_counter += 1
+
+        hash_values = set(h[2] for h in hashes)
+        common_hashes = hash_values_full.intersection(hash_values)
+        num_matches = len(common_hashes)
+
+        print('current matches : ', num_matches)
+        
+        if num_matches > max_matches:
+            max_matches = num_matches
+            best_match_song = song
+
+
+        # for updating the progress : 
+        progress = int((song_counter / total_songs) * 100)
+        update_func(progress)
+
+
+    print(f"The song with the most matches is: {best_match_song} with {max_matches} matches")
+
+    return best_match_song, max_matches
+
+
+
 if __name__ == '__main__': 
 
 

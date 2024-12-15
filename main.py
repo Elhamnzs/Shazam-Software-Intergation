@@ -12,7 +12,7 @@ import numpy as np
 import pyqtgraph as pg 
 
 
-from algorithms import generate_hash_audio, find_best_match
+from algorithms import generate_hash_audio, find_best_match, find_best_match_progressbar
 
 
 
@@ -51,11 +51,11 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
 
 
         # Timer for progress bar
-        self.progress_timer = QTimer(self)
-        self.progress_timer.timeout.connect(self.update_progress_bar)
+        # self.progress_timer = QTimer(self)
+        # self.progress_timer.timeout.connect(self.update_progress_bar)
 
-        self.progress_duration = 13.4 * 1000  # 15 seconds in milliseconds
-        self.progress_step = 100 / (self.progress_duration / 100)  # Calculate step size
+        # self.progress_duration = 13.4 * 1000  # 15 seconds in milliseconds
+        # self.progress_step = 100 / (self.progress_duration / 100)  # Calculate step size
         self.current_progress = 0
 
         self.sample_rate = 22050 #44100  # Standard audio sample rate
@@ -81,7 +81,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.plot_y = np.array([])
 
         # Start the progress bar
-        self._start_progress_bar()
+        # self._start_progress_bar()
 
         # Start recording in a separate thread to avoid UI blocking (It is non blocking)
         self.audio_stream = sd.InputStream(
@@ -94,7 +94,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         # Start the real-time plot update
         self.plot_timer.start(100)  # Update every 100 ms
 
-        # Stop recording and plotting after 15 seconds
+        # Stop recording and plotting after self.recording_duration
         QTimer.singleShot(self.recording_duration * 1000, self._stop_recording)
 
     def _audio_callback(self, indata, frames, time, status):
@@ -117,8 +117,9 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         print('type of audio data: ', type(self.audio_data))
         print('shape : ', self.audio_data.shape)
 
+        self._start_progress_bar()
         hashes = generate_hash_audio(self.audio_data)
-        bestmatch, num_matches = find_best_match(hashes)    
+        bestmatch, num_matches = find_best_match_progressbar(hashes, self.update_progress_bar)    
 
 
         # maybe link this to the signal at the end 
@@ -129,7 +130,7 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
     def _start_progress_bar(self):
         self.current_progress = 0
         self.ui.progressBar.setValue(self.current_progress)
-        self.progress_timer.start(100)  # Update every 100ms
+        # self.progress_timer.start(100)  # Update every 100ms
 
         # Continue with existing functionality
         #and here where I deactivate them
@@ -152,13 +153,13 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
             self.plotWidget.clear()
             self.plotWidget.plot(self.plot_x, self.plot_y, pen='y')  # Yellow waveform
 
-    def update_progress_bar(self):
-        self.current_progress += self.progress_step
-        self.ui.progressBar.setValue(int(self.current_progress))
+    def update_progress_bar(self, value):
+        # self.current_progress += self.progress_step
+        self.ui.progressBar.setValue(value)
 
-        # Stop the timer when progress reaches 100%
-        if self.current_progress >= 100:
-            self.progress_timer.stop()
+        # # Stop the timer when progress reaches 100%
+        # if self.current_progress >= 100:
+        #     self.progress_timer.stop()
 
 
 
