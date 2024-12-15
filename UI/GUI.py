@@ -102,8 +102,11 @@ class Ui_MainWindow(object):
         self.menusettings.setTitle(_translate("MainWindow", "debugging"))
         self.actionperiodogram.setText(_translate("MainWindow", "periodogram"))
 from pyqtgraph import PlotWidget
-import resources_rc
 
+try: 
+    import resources_rc
+except ImportError: 
+    from UI import resources_rc
 
 if __name__ == "__main__":
     import sys
