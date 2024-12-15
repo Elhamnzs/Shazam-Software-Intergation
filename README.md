@@ -1,8 +1,19 @@
-<h1 align="center">Shazam Meow</h1>
+<h1 align="center">Shazam Meow 🎙️😺</h1>
 A shazam like app, that tries to recognise a music by recording it. And search for the equivalent match in a database of musics.
 
 
-<h2 align="center"> collaborators </h2> 
+<h2 align="center"> Usage ℹ️</h2>
+- Before starting the app, you need to generate the database of hases using this command 
+```cmd python algorithms.py```
+
+
+- Once it is done, launc the app from `main.py`
+- You will be able to record a song, and the process will done automatically and at the end you will get a window that displays the best match in the database
+
+
+
+
+<h2 align="center"> collaborators 👨👩👨👩🛠️</h2> 
 
 <center>
 
