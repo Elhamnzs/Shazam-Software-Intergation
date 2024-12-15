@@ -1,35 +1,28 @@
-
-import os, sys, math, time, pdb
-import librosa 
+import sys
 import sounddevice as sd
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import *
+from PyQt5 import QtCore, QtGui
+from PyQt5.QtCore import QThread, QTimer
 from PyQt5.QtWidgets import (
-    QMainWindow, QApplication, QFileDialog, QTableWidgetItem, QMessageBox, QWidget, QPushButton, 
-    QHBoxLayout, QVBoxLayout, 
-    QGroupBox, 
-    QSizePolicy,
-    QHeaderView, 
+    QMainWindow, QApplication, QDialog, QStyleFactory
 )
+from UI.GUI import Ui_MainWindow 
+from UI.infoDialog import Ui_Dialog
 
-from PyQt5.QtGui import QImage, QPixmap, QColor, QIcon
-
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_qt5agg import (NavigationToolbar2QT as NavigationToolbar)
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.figure import Figure
-
-from GUI import Ui_MainWindow 
-import cv2
 import numpy as np 
-import pandas as pd
-import seaborn as sns
-
-# for ecg signal processing
-import wfdb 
-
-
 import pyqtgraph as pg 
+
+
+class InfoDialog(QDialog): 
+    def __init__(self, song_name:str):
+        super().__init__()
+        self.ui = Ui_Dialog()  
+        self.ui.setupUi(self)
+
+        self.ui.label_2.setText(song_name)
+        self.ui.buttonBox.accepted.connect(self.accept)  # Close on button click
+        self.setStyleSheet('background-color: #333; color: white;')
+        self.setStyle(QStyleFactory.create('Fusion'))
+
 
 
 class MyMainWindow(QMainWindow, Ui_MainWindow):
@@ -37,44 +30,21 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
 
         super(MyMainWindow, self).__init__(parent)
         QMainWindow.__init__(self, parent)
-
-        # this creates the UI and places all the widgets as placed in QtDesigner
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
-
-        # Title and dark theme
         self.setWindowTitle("Shazam meow")
         self.setStyleSheet('background-color: #333; color: white;')
 
 
 
+        self.plotWidget = self.ui.graphicsView  
+ 
 
-        # ========================= Testing purposes ==================
-        # self.plotWidget = pg.PlotWidget(self.ui.plotWidget)
-        self.plotWidget = self.ui.graphicsView  # this one holds the plot 
+        # Connect the play button to both progress bar and plotting the audio waves
+        # self.ui.btn_play.clicked.connect(self._start_progress_bar)
+        self.ui.btn_play.clicked.connect(self.start_recording_and_visualization)
 
 
-        # api reference : https://pyqtgraph.readthedocs.io/en/latest/api_reference/graphicsItems/plotitem.html#pyqtgraph.PlotItem
-        
-        self.x_data = np.array([1,2,3,4,5])
-        self.y_data = np.array([1,2,3,4,5])
-
-        self.plotWidget.plot(self.x_data, self.y_data)  # Plot data
-        self.plotWidget.setTitle("My Plot Title")  # Set title
-        self.plotWidget.setLabel("left", "Y-Axis Label")
-        #this comment is for plot_in_new_window
-        #self.ui.btn_play.clicked.connect(self.plot_in_new_window)
-        self.plotWidget = self.ui.graphicsView  # this one holds the plot
-
-        self.x_data = np.array([1, 2, 3, 4, 5])
-        self.y_data = np.array([1, 2, 3, 4, 5])
-
-        self.plotWidget.plot(self.x_data, self.y_data)  # Plot data
-        self.plotWidget.setTitle("My Plot Title")  # Set title
-        self.plotWidget.setLabel("left", "Y-Axis Label")
-
-        # Connect the play button to both progress bar and plotting in a new window
-        self.ui.btn_play.clicked.connect(self.start_progress_bar)
 
         # Timer for progress bar
         self.progress_timer = QTimer(self)
@@ -83,8 +53,6 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.progress_duration = 13.4 * 1000  # 15 seconds in milliseconds
         self.progress_step = 100 / (self.progress_duration / 100)  # Calculate step size
         self.current_progress = 0
-
-        self.ui.btn_play.clicked.connect(self.start_recording_and_visualization)
 
         self.sample_rate = 44100  # Standard audio sample rate
         self.recording_duration = 15  # Duration in seconds
@@ -98,6 +66,10 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.plot_x = np.array([])  # Time axis
         self.plot_y = np.array([])  # Amplitude
 
+
+
+
+
     def start_recording_and_visualization(self):
         # Reset variables
         self.audio_data = np.array([])
@@ -105,13 +77,13 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.plot_y = np.array([])
 
         # Start the progress bar
-        self.start_progress_bar()
+        self._start_progress_bar()
 
-        # Start recording in a separate thread to avoid UI blocking
+        # Start recording in a separate thread to avoid UI blocking (It is non blocking)
         self.audio_stream = sd.InputStream(
             samplerate=self.sample_rate,
             channels=1,
-            callback=self.audio_callback
+            callback=self._audio_callback
         )
         self.audio_stream.start()
 
@@ -119,34 +91,32 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.plot_timer.start(100)  # Update every 100 ms
 
         # Stop recording and plotting after 15 seconds
-        QTimer.singleShot(self.recording_duration * 1000, self.stop_recording)
+        QTimer.singleShot(self.recording_duration * 1000, self._stop_recording)
 
-    def audio_callback(self, indata, frames, time, status):
+    def _audio_callback(self, indata, frames, time, status):
         """Callback to handle incoming audio data."""
         if status:
             print(f"Audio stream status: {status}")
         self.audio_data = np.append(self.audio_data, indata[:, 0])  # Append the new audio data
 
-    def update_plot(self):
-        """Update the real-time plot with new audio data."""
-        if len(self.audio_data) > 0:
-            # Get the latest audio data to plot
-            self.plot_y = self.audio_data[-self.sample_rate:]  # Last 1 second of data
-            self.plot_x = np.linspace(0, len(self.plot_y) / self.sample_rate, len(self.plot_y))
-
-            # Clear the previous plot and replot
-            self.plotWidget.clear()
-            self.plotWidget.plot(self.plot_x, self.plot_y, pen='y')  # Yellow waveform
-
-    def stop_recording(self):
+    def _stop_recording(self):
         """Stop recording and plotting."""
         self.audio_stream.stop()
         self.plot_timer.stop()
+
         print("Recording stopped!")
+
+
+        print('starting processing ....')
+        # maybe start processin gthe stuff here in something 
+
+
+        # maybe link this to the signal at the end 
+        self._show_dialog('bob sinclar')
 
         # Function to start the progress bar
 
-    def start_progress_bar(self):
+    def _start_progress_bar(self):
         self.current_progress = 0
         self.ui.progressBar.setValue(self.current_progress)
         self.progress_timer.start(100)  # Update every 100ms
@@ -158,6 +128,20 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
 
         # Function to update progress bar
 
+
+
+    # this is connected to timer for updating the plot
+    def update_plot(self):
+        """Update the real-time plot with new audio data."""
+        if len(self.audio_data) > 0:
+            # Get the latest audio data to plot
+            self.plot_y = self.audio_data[-self.sample_rate:]  # Last 1 second of data
+            self.plot_x = np.linspace(0, len(self.plot_y) / self.sample_rate, len(self.plot_y))
+
+            # Clear the previous plot and replot
+            self.plotWidget.clear()
+            self.plotWidget.plot(self.plot_x, self.plot_y, pen='y')  # Yellow waveform
+
     def update_progress_bar(self):
         self.current_progress += self.progress_step
         self.ui.progressBar.setValue(int(self.current_progress))
@@ -166,11 +150,12 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         if self.current_progress >= 100:
             self.progress_timer.stop()
 
-    # testing how we can plot in a new window outside of the main window
-    def plot_in_new_window(self):
-        pg.plot(self.x_data, np.array([1,1,1,1,1]))
 
 
+    # for displaying the matched song in a new dialgo
+    def _show_dialog(self, song_name): 
+        dialog = InfoDialog(song_name=song_name)
+        dialog.exec_()  
 
 
 if __name__ == '__main__':
@@ -196,11 +181,6 @@ if __name__ == '__main__':
     window = MyMainWindow()
     window.show()
     quit_app()
-
-
-
-
-
 
 
   
