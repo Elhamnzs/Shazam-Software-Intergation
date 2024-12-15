@@ -12,6 +12,10 @@ import numpy as np
 import pyqtgraph as pg 
 
 
+from algorithms import generate_hash_audio, find_best_match
+
+
+
 class InfoDialog(QDialog): 
     def __init__(self, song_name:str):
         super().__init__()
@@ -54,8 +58,8 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         self.progress_step = 100 / (self.progress_duration / 100)  # Calculate step size
         self.current_progress = 0
 
-        self.sample_rate = 44100  # Standard audio sample rate
-        self.recording_duration = 15  # Duration in seconds
+        self.sample_rate = 22050 #44100  # Standard audio sample rate
+        self.recording_duration = 20  # Duration in seconds
         self.audio_data = np.array([])  # Placeholder for recorded audio data
 
         # Timer for real-time plotting
@@ -110,9 +114,15 @@ class MyMainWindow(QMainWindow, Ui_MainWindow):
         print('starting processing ....')
         # maybe start processin gthe stuff here in something 
 
+        print('type of audio data: ', type(self.audio_data))
+        print('shape : ', self.audio_data.shape)
+
+        hashes = generate_hash_audio(self.audio_data)
+        bestmatch, num_matches = find_best_match(hashes)    
+
 
         # maybe link this to the signal at the end 
-        self._show_dialog('bob sinclar')
+        self._show_dialog(bestmatch)
 
         # Function to start the progress bar
 
